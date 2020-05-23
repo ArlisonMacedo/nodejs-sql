@@ -1,6 +1,6 @@
 const Tech = require('../model/Tech')
 const User = require('../model/User')
-const UserTech = require('../model/User_Tech')
+
 
 module.exports = {
 
@@ -9,7 +9,7 @@ module.exports = {
         const { user_id } = req.params;
 
         const user = await User.findByPk(user_id, {
-            include: { 
+            include: {
                 association: 'techs',
                 through: {
                     attributes: []
@@ -21,7 +21,7 @@ module.exports = {
             return res.status(400).json({ erro: "User not found" });
         }
 
-        
+
 
         return res.json(user.techs);
 
@@ -53,6 +53,25 @@ module.exports = {
 
         return res.json(tech);
 
+    },
+
+    async delete(req, res) {
+        const { user_id } = req.params;
+        const { name } = req.body
+
+        const user = await User.findByPk(user_id)
+
+        if (!user) {
+            return res.status(400).json({ erro: "User not found" });
+        }
+
+        const tech = await Tech.findOne({
+            where: { name }
+        })
+
+        await user.removeTech(tech);
+
+        return res.json();
     }
 
 
